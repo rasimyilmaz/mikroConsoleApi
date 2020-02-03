@@ -1,6 +1,6 @@
 "# mikroConsoleApi"
-
-
+    'MikroConsonsole App folder should to system env path value.
+    '
     'Command Responses
     '200 Success. base64string
     '201 Xml imported. But logout failed. base64string
@@ -12,6 +12,7 @@
     '500 Response file does not exists.
     'Api Responses
     '500 Unable to parse request body.
+    '500 Command could not start.Explanation
     '500 Command time out.
     '500 Unable to parse command response.
     '501 Command std err message

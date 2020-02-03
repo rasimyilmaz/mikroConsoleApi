@@ -67,7 +67,7 @@ func importXML(c *gin.Context) {
 		fileInBytes,err :=base64.StdEncoding.DecodeString(request.File)
 		ioutil.WriteFile(request.FileShortName+".xml",fileInBytes,0666)
 		ctx, _ := context.WithTimeout(context.Background(), 5*time.Second)
-		cmd := exec.CommandContext(ctx,"mikroconsoleapp",request.Database,request.Username,request.Password,request.FileShortName,request.DocumentType)
+		cmd := exec.CommandContext(ctx,"MikroConsoleApp",request.Database,request.Username,request.Password,request.FileShortName,request.DocumentType)
 		stderr, err := cmd.StderrPipe()
 		if err != nil {
 			log.Printf("StderrPipe():%s\n",err.Error())
@@ -78,46 +78,50 @@ func importXML(c *gin.Context) {
 		}
 		if err := cmd.Start(); err != nil {
 			log.Printf("Command.Start():%s\n",err.Error())
-		}
-		var cmdResult result
-		jsonErr := json.NewDecoder(stdout).Decode(&cmdResult)
-		notifier:=false
-		slurp, _ := ioutil.ReadAll(stderr)
-		if len(slurp) > 0 {
-			log.Printf("Execute error.%s\n",slurp)
-			c.JSON(http.StatusNotImplemented, gin.H{
-				"message": slurp,
-			})
-		}else{
-			if jsonErr != nil {
-				log.Printf("Json.Decode(): %s\n",jsonErr.Error())
-				notifier=true 
-			}else{
-				c.JSON(cmdResult.Code, gin.H{
-					"message":cmdResult.Message,
-					"file":cmdResult.File,
-				})
-			}
-		}
-		if err := cmd.Wait(); err != nil {
-			log.Printf("Non-zero exit code.%s\n",err.Error())
-		}
-		err = ctx.Err()
-		if err == context.DeadlineExceeded {
-			if notifier {
-				c.JSON(http.StatusInternalServerError, gin.H{
-					"message":"Command time out.",
-				})
-				notifier=false  
-			}
-			log.Printf("Context error.Command time out.")
-		}else if err!=nil {
-			log.Printf("Context error.%s\n",err.Error())
-		}
-		if notifier{
 			c.JSON(http.StatusInternalServerError, gin.H{
-				"message":"Unable to parse command response type as json.",
+				"message": "Command could not start."+err.Error(),
 			})
+		}else {
+			var cmdResult result
+			jsonErr := json.NewDecoder(stdout).Decode(&cmdResult)
+			notifier:=false
+			slurp, _ := ioutil.ReadAll(stderr)
+			if len(slurp) > 0 {
+				log.Printf("Execute error.%s\n",slurp)
+				c.JSON(http.StatusNotImplemented, gin.H{
+					"message": slurp,
+				})
+			}else{
+				if jsonErr != nil {
+					log.Printf("Json.Decode(): %s\n",jsonErr.Error())
+					notifier=true 
+				}else{
+					c.JSON(cmdResult.Code, gin.H{
+						"message":cmdResult.Message,
+						"file":cmdResult.File,
+					})
+				}
+			}
+			if err := cmd.Wait(); err != nil {
+				log.Printf("Non-zero exit code.%s\n",err.Error())
+			}
+			err = ctx.Err()
+			if err == context.DeadlineExceeded {
+				if notifier {
+					c.JSON(http.StatusInternalServerError, gin.H{
+						"message":"Command time out.",
+					})
+					notifier=false  
+				}
+				log.Printf("Context error.Command time out.")
+			}else if err!=nil {
+				log.Printf("Context error.%s\n",err.Error())
+			}
+			if notifier{
+				c.JSON(http.StatusInternalServerError, gin.H{
+					"message":"Unable to parse command response.",
+				})
+			}
 		}
 		t2:=time.Now()
 		diff:=t2.Sub(t1).Milliseconds()
