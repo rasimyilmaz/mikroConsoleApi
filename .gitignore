@@ -3,3 +3,6 @@
 
 # ignore log file
 *.log
+
+# ignore dll file
+*.dll
