@@ -1,5 +1,6 @@
 # ignore all executeable files
 *.exe
+*.exe*
 
 # ignore log file
 *.log
