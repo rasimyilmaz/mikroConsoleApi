@@ -52,7 +52,7 @@ func importXML(c *gin.Context) {
 	t1 := time.Now()
 	dir, _ := filepath.Abs(filepath.Dir(os.Args[0]))
 	logFilename := filepath.Join(dir, "mikroConsoleApi.log")
-	exeFilename := "MikroConsoleApp.exe"
+	exeFilename := filepath.Join(dir, "MikroConsoleApp.exe")
 	f, _ := os.OpenFile(logFilename, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 	log.SetOutput(f)
 	defer f.Close()
@@ -65,8 +65,9 @@ func importXML(c *gin.Context) {
 		})
 	}else
 	{
+		inputFilename := filepath.Join(dir,request.FileShortName+".xml")
 		fileInBytes,err :=base64.StdEncoding.DecodeString(request.File)
-		ioutil.WriteFile(request.FileShortName+".xml",fileInBytes,0666)
+		ioutil.WriteFile(inputFilename,fileInBytes,0666)
 		ctx, _ := context.WithTimeout(context.Background(), 5*time.Second)
 		cmd := exec.CommandContext(ctx,exeFilename,request.Database,request.Username,request.Password,request.FileShortName,request.DocumentType)
 		cmd.Dir=dir
