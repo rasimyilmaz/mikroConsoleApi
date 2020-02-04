@@ -67,8 +67,8 @@ func importXML(c *gin.Context) {
 		fileInBytes,err :=base64.StdEncoding.DecodeString(request.File)
 		ioutil.WriteFile(request.FileShortName+".xml",fileInBytes,0666)
 		ctx, _ := context.WithTimeout(context.Background(), 5*time.Second)
-		cmd := exec.CommandContext(ctx,"MikroConsoleApp",request.Database,request.Username,request.Password,request.FileShortName,request.DocumentType)
-		cmd.Env = os.Environ()
+		cmd := exec.CommandContext(ctx,"MikroConsoleApp.exe",request.Database,request.Username,request.Password,request.FileShortName,request.DocumentType)
+		cmd.Env=append(os.Environ())
 		stderr, err := cmd.StderrPipe()
 		if err != nil {
 			log.Printf("StderrPipe():%s\n",err.Error())
