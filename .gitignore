@@ -1,9 +1,5 @@
-# ignore all executeable files
-*.exe
-*.exe*
+# ignore own executeable files
+mikroConsoleApi.exe*
 
 # ignore log file
 *.log
-
-# ignore dll file
-*.dll
