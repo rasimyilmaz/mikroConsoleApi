@@ -1,5 +1,2 @@
-# ignore own executeable files
-mikroConsoleApi.exe*
-
 # ignore log file
 *.log
