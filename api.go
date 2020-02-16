@@ -68,7 +68,7 @@ func importXML(c *gin.Context) {
 		inputFilename := filepath.Join(dir,request.FileShortName+".xml")
 		fileInBytes,err :=base64.StdEncoding.DecodeString(request.File)
 		ioutil.WriteFile(inputFilename,fileInBytes,0666)
-		ctx, _ := context.WithTimeout(context.Background(), 5*time.Second)
+		ctx, _ := context.WithTimeout(context.Background(), 25*time.Second)
 		cmd := exec.CommandContext(ctx,exeFilename,request.Database,request.Username,request.Password,request.FileShortName,request.DocumentType)
 		cmd.Dir=dir
 		stderr, err := cmd.StderrPipe()
@@ -116,7 +116,7 @@ func importXML(c *gin.Context) {
 					})
 					notifier=false  
 				}
-				log.Printf("Context error.Command time out.")
+				log.Printf("Context error.Command time out.\n")
 			}else if err!=nil {
 				log.Printf("Context error.%s\n",err.Error())
 			}
@@ -128,6 +128,6 @@ func importXML(c *gin.Context) {
 		}
 		t2:=time.Now()
 		diff:=t2.Sub(t1).Milliseconds()
-		log.Printf("Function execution %d miliseconds long.",diff)
+		log.Printf("Function execution %d miliseconds long.\n",diff)
 	}
 }
